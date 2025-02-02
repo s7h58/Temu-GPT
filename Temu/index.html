@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 채팅</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-area">
+            <button onclick="sendEmoji()">😀</button>
+            <input type="text" id="message" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()" style="color: black; background-color: #ccc;" >전송</button>
+            <button onclick="sendFile()">➕</button>
+        </div>
+    </div>
+    <script>
+        const badWords = ["어쩔", "시발", "ㅗ","ㅇㅉ", "새끼", "개새끼", "ㅈㄹ", "ㅅㅂ", "ㅆㅂ", "ㅈㄴ", "ㅂㅅ", "ㅄ", "ㅂㅈ", "ㅂㅌ", "ㅂㅇ", "ㅂㅂ", "ㅂㄹ", "ㅂㄱ", "ㅂㄴ", "ㅂㄷ", "ㅂㅍ", "ㅂㄷ", "ㅂㄹ", "ㅂㅅ", "ㅂㅈ", "ㅂㅌ", "ㅂㅇ", "ㅂㅂ", "ㅂㄹ", "ㅂㄱ", "ㅂㄴ", "ㅂㄷ", "ㅂㅍ", "ㅂㄷ", "ㅂㄹ", "ㅂㅅ", "ㅂㅈ", "ㅂㅌ", "ㅂㅇ", "ㅂㅂ", "ㅂㄹ", "ㅂㄱ", "ㅂㄴ", "ㅂㄷ", "ㅂㅍ", "ㅂㄷ", "ㅂㄹ", "ㅂㅅ", "ㅂㅈ", "ㅂㅌ", "ㅂㅇ", "ㅂㅂ", "ㅂㄹ", "ㅂㄱ", "ㅂㄴ", "ㅂㄷ", "ㅂㅍ", "ㅂㄷ", "ㅂㄹ", "ㅂㅅ", "ㅂㅈ", "ㅂㅌ", "ㅂㅇ", "ㅂㅂ", "ㅂㄹ", "ㅂㄱ", "ㅂㄴ", "ㅂㄷ", "ㅂㅍ", "ㅂㄷ", "ㅂㄹ", "ㅂㅅ", "ㅂㅈ", "ㅂㅌ", "ㅂㅇ", "ㅂㅂ", "ㅂㄹ", "ㅂㄱ", "ㅂㄴ", "ㅂㄷ", "ㅂㅍ", "ㅂㄷ", "ㅂㄹ"];
+const adminResponses = [
+    "안녕하세요! 무엇을 도와드릴까요?",
+    "문의사항이 있으시면 말씀해주세요!",
+    "도움이 필요하시면 언제든지 알려주세요!",
+    "무엇이든 편하게 질문하세요!"
+];
+
+const moodSongs = {
+    "슬픔": [{title: "IU - Love Poem", link: "https://www.youtube.com/embed/tEp92WvLfSA"}],
+    "기쁨": [{title: "Pharrell Williams - Happy", link: "https://www.youtube.com/embed/ZbZSe6N_BXs"}],
+    "우울": [{title: "Billie Eilish - lovely", link: "https://www.youtube.com/embed/V1Pl8CzNzCw"}],
+    "화남": [{title: "Eminem - Lose Yourself", link: "https://www.youtube.com/embed/_Yhyp-_hX2s"}]
+};
+
+function filterBadWords(text) {
+    badWords.forEach(word => {
+        let regex = new RegExp(word, "gi");
+        text = text.replace(regex, "***");
+    });
+    return text;
+}
+
+function addMessage(content, sender, isHTML = false) {
+    let chatBox = document.getElementById("chat-box");
+    let message = document.createElement("div");
+    message.classList.add("message", sender);
+    if (isHTML) {
+        message.innerHTML = content;
+    } else {
+        message.textContent = content;
+    }
+    chatBox.appendChild(message);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sendMessage() {
+    let input = document.getElementById("message");
+    let text = input.value.trim();
+    if (text === "") return;
+    text = filterBadWords(text);
+    addMessage(text, "user");
+    input.value = "";
+    
+    if (text.includes("노래 추천")) {
+        setTimeout(() => addMessage("어떤 기분이신가요? (슬픔, 기쁨, 우울, 화남)", "admin"), 1000);
+    } else if (moodSongs[text]) {
+        let song = moodSongs[text][0];
+        let content = `<strong>${song.title}</strong><br><iframe width='100%' height='200' src='${song.link}' frameborder='0' allowfullscreen></iframe>`;
+        setTimeout(() => addMessage(content, "admin", true), 1000);
+    } else {
+        let adminResponse = adminResponses[Math.floor(Math.random() * adminResponses.length)];
+        setTimeout(() => addMessage(adminResponse, "admin"), 1000);
+    }
+}
+
+function handleKeyPress(event) {
+    if (event.key === "Enter") sendMessage();
+}
+
+function sendEmoji() {
+    document.getElementById("message").value += "😀";
+}
+
+function sendFile() {
+    let fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*, video/*";
+    fileInput.onchange = function(event) {
+        let file = event.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let fileType = file.type.startsWith("image") ? "img" : "video";
+                let content = `<${fileType} src='${e.target.result}' controls></${fileType}>`;
+                addMessage(content, "user", true);
+                setTimeout(() => addMessage("파일을 확인하겠습니다.", "admin"), 1000);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    fileInput.click();
+}
+    </script>
+</body>
+</html>
