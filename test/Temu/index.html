@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 채팅</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box"></div>
+        <div class="input-area">
+            <button onclick="sendEmoji()">😀</button>
+            <input type="text" id="message" placeholder="메시지 입력..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()" style="color: black; background-color: #ccc;" >전송</button>
+            <button onclick="sendFile()">➕</button>
+        </div>
+    </div>
+</body>
+</html>
